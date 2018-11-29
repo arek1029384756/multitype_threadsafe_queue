@@ -49,14 +49,6 @@ namespace commands {
         };
 
         template<typename TCmd>
-        struct printer_<0, TCmd> {
-            static void print(const TCmd& cmd) {
-                std::cout << "  field<" << 0 << ">: " << std::get<0>(cmd.members)
-                          << std::endl << std::endl;
-            }
-        };
-
-        template<typename TCmd>
         struct printer_<-1, TCmd> {
             static void print(const TCmd&) {
                 std::cout << std::endl;
