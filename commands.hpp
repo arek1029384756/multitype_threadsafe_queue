@@ -38,10 +38,10 @@ namespace commands {
 
     class Printer {
 
-        Printer() = delete;
-
         template<std::size_t>
         struct s_ {};
+
+        Printer() = delete;
 
         template<typename TCmd>
         static void printCmd(const TCmd& cmd, s_<0>) {
@@ -58,7 +58,15 @@ namespace commands {
         public:
         template<typename TCmd>
         static void printCmd(const TCmd& cmd) {
-            std::cout << "Cmd ID: " << cmd.ID << ", members cnt: " << cmd.getSize() << std::endl;
+            std::cout << "Cmd ID: "
+                      << TCmd::ID
+                      << ", type hash: 0x"
+                      << std::hex
+                      << typeid(TCmd).hash_code()
+                      << std::dec
+                      << ", members cnt: "
+                      << TCmd::getSize()
+                      << std::endl;
             printCmd(cmd, s_<TCmd::getSize()-1>());
         }
     };
