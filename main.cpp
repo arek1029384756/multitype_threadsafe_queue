@@ -6,24 +6,28 @@ namespace {
 
     class Example {
 
-        using CmdTemperature = commands::Cmd<1, Example, std::string, double, std::string>;
-        using CmdVoltage     = commands::Cmd<2, Example, std::string, double, std::string, std::string, std::uint32_t>;
-        using CmdExit        = commands::Cmd<3, Example, std::int32_t, std::string>;
+        using CmdEmpty       = commands::Cmd<__COUNTER__, Example>;
+        using CmdTemperature = commands::Cmd<__COUNTER__, Example, std::string, double, std::string>;
+        using CmdVoltage     = commands::Cmd<__COUNTER__, Example, std::string, double, std::string, std::string, std::uint32_t>;
+        using CmdExit        = commands::Cmd<__COUNTER__, Example, std::int32_t, std::string>;
 
         std::thread m_th;
         mqueue::MQueueImpl<Example> m_mq;
 
-        //worker thead
+        //worker thead example
         void run(mqueue::MQueueTxInterface<Example> * const ifc) {
             printTID(__func__);
 
             for(std::size_t i = 0; i < 5; ++i) {
                 auto exampleT = double(23) + double(i) / 10;
                 auto exampleV = -double(i) + double(i) / 10;
-                if(i % 2) {
+                auto idx = i % 3;
+                if(idx == 0) {
                     ifc->send(new CmdTemperature("Sensor 1", exampleT, "degC"));
-                } else {
+                } else if(idx == 1) {
                     ifc->send(new CmdVoltage("Value", exampleV, "mV", "Interval", i + 2));
+                } else {
+                    ifc->send(new CmdEmpty());
                 }
             }
 
@@ -36,6 +40,10 @@ namespace {
         }
 
         void handleCommand(const CmdVoltage& cmd) {
+            commands::Printer::printCmd(cmd);
+        }
+
+        void handleCommand(const CmdEmpty& cmd) {
             commands::Printer::printCmd(cmd);
         }
 

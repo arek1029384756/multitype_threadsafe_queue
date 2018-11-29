@@ -29,8 +29,8 @@ namespace commands {
             return std::get<N>(members);
         }
 
-        static constexpr typename std::tuple_size<std::tuple<TArgs...>>::value_type getSize() {
-            return std::tuple_size<std::tuple<TArgs...>>::value;
+        static constexpr auto getSize() {
+            return std::int32_t(std::tuple_size<std::tuple<TArgs...>>::value);
         }
 
         static constexpr std::size_t ID = cmdID;
@@ -38,22 +38,30 @@ namespace commands {
 
     class Printer {
 
-        template<std::size_t>
-        struct s_ {};
-
         Printer() = delete;
 
-        template<typename TCmd>
-        static void printCmd(const TCmd& cmd, s_<0>) {
-            std::cout << "  field<" << 0 << ">: " << std::get<0>(cmd.members)
-                      << std::endl << std::endl;
-        }
+        template<std::int32_t N, typename TCmd>
+        struct printer_ {
+            static void print(const TCmd& cmd) {
+                std::cout << "  field<" << N << ">: " << std::get<N>(cmd.members) << std::endl;
+                printer_<N-1, TCmd>::print(cmd);
+            }
+        };
 
-        template<std::size_t N, typename TCmd>
-        static void printCmd(const TCmd& cmd, s_<N>) {
-            std::cout << "  field<" << N << ">: " << std::get<N>(cmd.members) << std::endl;
-            printCmd(cmd, s_<N-1>());
-        }
+        template<typename TCmd>
+        struct printer_<0, TCmd> {
+            static void print(const TCmd& cmd) {
+                std::cout << "  field<" << 0 << ">: " << std::get<0>(cmd.members)
+                          << std::endl << std::endl;
+            }
+        };
+
+        template<typename TCmd>
+        struct printer_<-1, TCmd> {
+            static void print(const TCmd&) {
+                std::cout << std::endl;
+            }
+        };
 
         public:
         template<typename TCmd>
@@ -67,7 +75,7 @@ namespace commands {
                       << ", members cnt: "
                       << TCmd::getSize()
                       << std::endl;
-            printCmd(cmd, s_<TCmd::getSize()-1>());
+            printer_<TCmd::getSize()-1, TCmd>::print(cmd);
         }
     };
 
