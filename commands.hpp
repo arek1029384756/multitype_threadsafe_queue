@@ -7,21 +7,21 @@
 
 namespace commands {
 
-    template<typename TUser>
+    template<typename TReceiver>
     struct CmdBase {
         CmdBase() = default;
         virtual ~CmdBase() = default;
-        virtual void handleCommand(TUser&) const = 0;
+        virtual void handleCommand(TReceiver&) const = 0;
     };
 
-    template<std::size_t cmdID, typename TUser, typename... TArgs>
-    struct Cmd : public CmdBase<TUser> {
+    template<std::size_t cmdID, typename TReceiver, typename... TArgs>
+    struct Cmd : public CmdBase<TReceiver> {
         std::tuple<TArgs...> members;
         Cmd(const TArgs&... args) : members(args...) { }
         ~Cmd() = default;
 
-        void handleCommand(TUser& user) const override {
-            user.handleCommand(std::ref(*this));
+        void handleCommand(TReceiver& rx) const override {
+            rx.handleCommand(std::ref(*this));
         }
 
         template<std::size_t N>

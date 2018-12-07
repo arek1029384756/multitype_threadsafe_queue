@@ -5,7 +5,7 @@
 
 namespace mqueue {
 
-    template<typename TUser, typename Impl>
+    template<typename Impl>
     class MQueueTxInterface {
         public:
         template<typename TCmd, typename... TArgs>
@@ -15,11 +15,11 @@ namespace mqueue {
         }
     };
 
-    template<typename TUser>
+    template<typename TReceiver>
     class MQueueRxInterface {
         public:
-        virtual void receiveB(TUser&) = 0;
-        virtual void receiveNB(TUser&) = 0;
+        virtual void receiveB(TReceiver&) = 0;
+        virtual void receiveNB(TReceiver&) = 0;
     };
 
 }

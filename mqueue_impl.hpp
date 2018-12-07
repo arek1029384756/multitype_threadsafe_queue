@@ -9,10 +9,10 @@
 
 namespace mqueue {
 
-    template<typename TUser>
-    class MQueueImpl : public MQueueTxInterface<TUser, MQueueImpl<TUser>>,
-                       public MQueueRxInterface<TUser> {
-        using queue_type = std::list<std::unique_ptr<const commands::CmdBase<TUser>>>;
+    template<typename TReceiver>
+    class MQueueImpl : public MQueueTxInterface<MQueueImpl<TReceiver>>,
+                       public MQueueRxInterface<TReceiver> {
+        using queue_type = std::list<std::unique_ptr<const commands::CmdBase<TReceiver>>>;
 
         std::mutex m_mtx;
         std::condition_variable m_cv;
@@ -38,7 +38,7 @@ namespace mqueue {
             shared2Local();
         }
 
-        void serviceCommands(TUser& rx) {
+        void serviceCommands(TReceiver& rx) {
             while(!m_localQueue.empty()) {
                 auto& cptr = m_localQueue.front();
                 cptr->handleCommand(rx);
@@ -47,7 +47,7 @@ namespace mqueue {
         }
 
         public:
-        void send(const commands::CmdBase<TUser> * const cmd) /* static polymorphism */ {
+        void send(const commands::CmdBase<TReceiver> * const cmd) /* static polymorphism */ {
             {
                 std::unique_lock<std::mutex> lock(m_mtx);
                 m_sharedQueue.emplace_back(cmd);
@@ -55,21 +55,21 @@ namespace mqueue {
             m_cv.notify_one();
         }
 
-        void receiveB(TUser& rx) override {
+        void receiveB(TReceiver& rx) override {
             readB();
             serviceCommands(rx);
         }
 
-        void receiveNB(TUser& rx) override {
+        void receiveNB(TReceiver& rx) override {
             readNB();
             serviceCommands(rx);
         }
 
-        MQueueTxInterface<TUser, MQueueImpl<TUser>> * getTxInterface() {
+        MQueueTxInterface<MQueueImpl<TReceiver>> * getTxInterface() {
             return this;
         }
 
-        MQueueRxInterface<TUser> * getRxInterface() {
+        MQueueRxInterface<TReceiver> * getRxInterface() {
             return this;
         }
  

@@ -3,12 +3,12 @@ Thread-safe FIFO passing generic self-dispatching commands of multiple types
 
 Single FIFO capable of secure commands passing between threads. Each command type can have any number of fields of any type independently of other commands. Different types of commands are stored in the same FIFO thus receiving order is guaranteed to be the same as transmitting order.
 
-Received commands are used directly to call proper handlers in the User class in the receiver thread context. Since command is identified by it's type, simple method overloading does the job. No extensive if...else statements, no command dispatching maps, no dynamic (or any other) casting.
+Received commands are used directly to call proper handlers in the Receiver class in the receiver thread context. Since command is identified by it's type, simple method overloading does the job. No extensive if...else statements, no command dispatching maps, no dynamic (or any other) casting.
 
 #### Example of command creating, sending and handling reception
 
 ```cpp
-using CmdExample = commands::Cmd<1, User, std::vector<std::string>, double, std::string>;
+using CmdExample = commands::Cmd<1, Receiver, std::vector<std::string>, double, std::string>;
 ```
 
 Command ```CmdExample``` has three fields identified by the indexes 0..2
@@ -18,10 +18,10 @@ field<1>: double
 field<2>: std::string
 ```
 
-```User``` is the class that implements handlers for received commands.
+```Receiver``` is the class that implements handlers for received commands.
 
 ```cpp
-void User::handleCommand(const CmdExample& cmd) {
+void Receiver::handleCommand(const CmdExample& cmd) {
     //Read the double field
     auto x = cmd.getMember<1>();
 

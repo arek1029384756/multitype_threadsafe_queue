@@ -15,7 +15,7 @@ namespace {
         mqueue::MQueueImpl<Example> m_mq;
 
         //worker thead example
-        void run(mqueue::MQueueTxInterface<Example, decltype(m_mq)> * const ifc) {
+        void run(mqueue::MQueueTxInterface<decltype(m_mq)> * const ifc) {
             printTID(__func__);
 
             for(std::size_t i = 0; i < 5; ++i) {
