@@ -36,3 +36,12 @@ Constructor of ```CmdExample``` takes 3 parameters, for instance:
 ```cpp
 auto* ptr = new CmdExample({"foo", "bar", "baz", "whatever"}, 42.0, "Hello");
 ```
+
+A convenient ```send``` method template provided by TX interface can be used for command sending with no need of creating CmdExample object
+
+```cpp
+mqueue::MQueueImpl<Receiver> mq;
+auto* const ifc = mq.getTxInterface();
+
+ifc->send<CmdExample>({"foo", "bar", "baz", "whatever"}, 42.0, "Hello");
+```
